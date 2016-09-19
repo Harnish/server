@@ -742,7 +742,7 @@ var OC={
 			return;
 		}
 
-		if (_.contains([0, 302, 303, 307, 401], xhr.status)) {
+		if (_.contains([302, 303, 307, 401], xhr.status)) {
 			// sometimes "beforeunload" happens later, so need to defer the reload a bit
 			setTimeout(function() {
 				if (!self._userIsNavigatingAway && !self._reloadCalled) {
@@ -750,6 +750,12 @@ var OC={
 					setTimeout(OC.reload, 5000);
 					// only call reload once
 					self._reloadCalled = true;
+				}
+			}, 100);
+		} else if (xhr.status === 0) {
+			setTimeout(function() {
+				if (!self._userIsNavigatingAway && !self._reloadCalled) {
+					OC.Notification.show(t('core', 'Connection to server lost'));
 				}
 			}, 100);
 		}
