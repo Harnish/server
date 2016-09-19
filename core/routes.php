@@ -52,6 +52,14 @@ $application->registerRoutes($this, [
 		['name' => 'TwoFactorChallenge#selectChallenge', 'url' => '/login/selectchallenge', 'verb' => 'GET'],
 		['name' => 'TwoFactorChallenge#showChallenge', 'url' => '/login/challenge/{challengeProviderId}', 'verb' => 'GET'],
 		['name' => 'TwoFactorChallenge#solveChallenge', 'url' => '/login/challenge/{challengeProviderId}', 'verb' => 'POST'],
+
+		['name' => 'AppConfig#getApps', 'url' => '/appconfig', 'verb' => 'GET'],
+		['name' => 'AppConfig#getKeys', 'url' => '/appconfig/{app}', 'verb' => 'GET'],
+		['name' => 'AppConfig#deleteApp', 'url' => '/appconfig/{app}', 'verb' => 'DELETE'],
+		['name' => 'AppConfig#getValue', 'url' => '/appconfig/{app}/{key}', 'verb' => 'GET'],
+		['name' => 'AppConfig#deleteKey', 'url' => '/appconfig/{app}/{key}', 'verb' => 'DELETE'],
+		['name' => 'AppConfig#setValue', 'url' => '/appconfig/{app}/{key}', 'verb' => 'POST'],
+		['name' => 'AppConfig#hasKey', 'url' => '/appconfig/{app}/{key}/exists', 'verb' => 'GET'],
 	],
 	'ocs' => [
 		['root' => '/cloud', 'name' => 'OCS#getCapabilities', 'url' => '/capabilities', 'verb' => 'GET'],
@@ -67,9 +75,6 @@ $application->registerRoutes($this, [
 // Search
 $this->create('search_ajax_search', '/core/search')
 	->actionInclude('core/search/ajax/search.php');
-// AppConfig
-$this->create('core_ajax_appconfig', '/core/ajax/appconfig.php')
-	->actionInclude('core/ajax/appconfig.php');
 // oC JS config
 $this->create('js_config', '/core/js/oc.js')
 	->actionInclude('core/js/config.php');
