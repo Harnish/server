@@ -1,58 +1,112 @@
 /**
- * Copyright (c) 2011, Robin Appelman <icewind1991@gmail.com>
- * This file is licensed under the Affero General Public License version 3 or later.
- * See the COPYING-README file.
+ * @copyright Copyright (c) 2016 Joas Schilling <coding@schilljs.com>
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 /**
  * @namespace
  */
 OC.AppConfig={
-	url:OC.filePath('core','ajax','appconfig.php'),
-	getCall:function(action,data,callback){
-		data.action=action;
-		$.getJSON(OC.AppConfig.url,data,function(result){
-			if(result.status==='success'){
-				if(callback){
+	/**
+	 * @param {string} method
+	 * @param {string} endpoint
+	 * @param {object|function} [data]
+	 * @param {function} [callback]
+	 */
+	_call: function(method, endpoint, data, callback) {
+		if (_.isFunction(data)) {
+			callback = data;
+			data = {};
+		} else {
+			data = {};
+		}
+
+		$.ajax({
+			type: method.toUpperCase(),
+			url: OC.generateUrl('/appconfig' + endpoint),
+			data: data,
+			success: function(result) {
+				if (_.isFunction(callback)) {
 					callback(result.data);
 				}
 			}
-		});
+		})
 	},
-	postCall:function(action,data,callback){
-		data.action=action;
-		$.post(OC.AppConfig.url,data,function(result){
-			if(result.status==='success'){
-				if(callback){
-					callback(result.data);
-				}
-			}
-		},'json');
-	},
+
+	/**
+	 * @param {string} app
+	 * @param {string} key
+	 * @param {string|function} defaultValue
+	 * @param {function} [callback]
+	 */
 	getValue:function(app,key,defaultValue,callback){
-		if(typeof defaultValue=='function'){
+		if(_.isFunction(defaultValue)){
 			callback=defaultValue;
 			defaultValue=null;
 		}
-		OC.AppConfig.getCall('getValue',{app:app,key:key,defaultValue:defaultValue},callback);
+		this._call('get', '/' + app + '/' + key, {defaultValue: defaultValue}, callback);
 	},
+
+	/**
+	 * @param {string} app
+	 * @param {string} key
+	 * @param {string} value
+	 */
 	setValue:function(app,key,value){
-		OC.AppConfig.postCall('setValue',{app:app,key:key,value:value});
+		this._call('post', '/' + app + '/' + key, {value: value}, callback);
 	},
+
+	/**
+	 * @param {function} [callback]
+	 */
 	getApps:function(callback){
-		OC.AppConfig.getCall('getApps',{},callback);
+		this._call('get', '', callback);
 	},
+
+	/**
+	 * @param {string} app
+	 * @param {function} [callback]
+	 */
 	getKeys:function(app,callback){
-		OC.AppConfig.getCall('getKeys',{app:app},callback);
+		this._call('get', '/' + app, callback);
 	},
+
+	/**
+	 * @param {string} app
+	 * @param {string} key
+	 * @param {function} [callback]
+	 */
 	hasKey:function(app,key,callback){
-		OC.AppConfig.getCall('hasKey',{app:app,key:key},callback);
+		this._call('get', '/' + app + '/' + key + '/exists', callback);
 	},
+
+	/**
+	 * @param {string} app
+	 * @param {string} key
+	 */
 	deleteKey:function(app,key){
-		OC.AppConfig.postCall('deleteKey',{app:app,key:key});
+		this._call('delete', '/' + app + '/' + key);
 	},
+
+	/**
+	 * @param {string} app
+	 */
 	deleteApp:function(app){
-		OC.AppConfig.postCall('deleteApp',{app:app});
+		this._call('delete', '/' + app);
 	}
 };
-//TODO OC.Preferences
